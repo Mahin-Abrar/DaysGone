@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Routines — Life Tracker{% endblock %}
+{% block content %}
+<div class="page-hero flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-2xl font-bold">Daily Routines</h1>
+        <p class="text-gray-500">{{ today|date:"l, F j" }}</p>
+    </div>
+    <a href="{% url 'routines:create' %}" class="btn-primary">+ New Routine</a>
+</div>
+
+<!-- Weekly Heatmap -->
+<div class="card mb-6 animate-item" style="--delay: 0.1s">
+    <h2 class="text-lg font-bold mb-4">📊 Weekly Progress</h2>
+    <div class="flex gap-2 justify-between">
+        {% for day in heatmap %}
+        <div class="flex-1 text-center liquid-day" style="--i: {{ forloop.counter0 }}">
+            <div class="liquid-bar-container">
+                <div class="liquid-fill liquid-fill-{{ forloop.counter0 }}"
+                     data-pct="{% if day.pct > 0 %}{{ day.pct }}{% else %}0{% endif %}"
+                     data-level="{% if day.pct >= 80 %}high{% elif day.pct >= 50 %}mid{% elif day.pct > 0 %}low{% else %}empty{% endif %}">
+                    <div class="liquid-wave"></div>
+                    <div class="liquid-wave liquid-wave-2"></div>
+                </div>
+            </div>
+            <span class="text-xs font-medium mt-2 block">{{ day.label }}</span>
+            <span class="text-xs text-gray-400 block">{{ day.done }}/{{ day.due }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Today's Routines -->
+<h2 class="text-lg font-bold mb-4 animate-item" style="--delay: 0.2s">Today Checklist</h2>
+<div id="routine-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {% for item in routine_data %}
+    <div class="animate-item" style="--delay: {{ forloop.counter0|add:2 }}00ms">
+        {% include "routines/partials/routine_card.html" %}
+    </div>
+    {% empty %}
+    <div class="card col-span-2 text-center text-gray-500 animate-item">
+        <p>No routines due today. <a href="{% url 'routines:create' %}" class="text-indigo-600">Create one!</a></p>
+    </div>
+    {% endfor %}
+</div>
+
+{% if all_routines %}
+<div class="mt-8 animate-item" style="--delay: 0.4s">
+    <h2 class="text-lg font-bold mb-4">All Routines</h2>
+    <div class="card overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead><tr class="text-left border-b dark:border-gray-700">
+                <th class="pb-2">Routine</th><th>Schedule</th><th>Actions</th>
+            </tr></thead>
+            <tbody>
+            {% for r in all_routines %}
+            <tr class="border-b dark:border-gray-700/50">
+                <td class="py-2">{{ r.icon }} {{ r.title }}</td>
+                <td>{{ r.get_schedule_display }}</td>
+                <td class="space-x-2">
+                    <a href="{% url 'routines:edit' r.pk %}" class="text-indigo-600 text-xs">Edit</a>
+                    <form method="post" action="{% url 'routines:delete' r.pk %}" class="inline"
+                          onsubmit="return confirm('Delete this routine?')">
+                        {% csrf_token %}
+                        <button class="text-red-500 text-xs">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.liquid-fill').forEach((el, i) => {
+        const pct = parseInt(el.dataset.pct, 10) || 0;
+        setTimeout(() => {
+            el.style.height = pct > 0 ? pct + '%' : '6%';
+        }, 150 + i * 80);
+    });
+});
+</script>
+{% endblock %}

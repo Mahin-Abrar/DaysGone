@@ -1,0 +1,31 @@
+<div id="routine-{{ item.routine.pk }}" class="card flex items-center gap-4 {% if item.completed %}opacity-75{% endif %}"
+     style="border-left: 4px solid {{ item.routine.color }}">
+    <div class="text-3xl">{{ item.routine.icon }}</div>
+    <div class="flex-1">
+        <h3 class="font-bold {% if item.completed %}line-through{% endif %}">{{ item.routine.title }}</h3>
+        {% if item.routine.target_time %}
+        <p class="text-xs text-gray-400">⏰ {{ item.routine.target_time }}</p>
+        {% endif %}
+        {% if item.streak > 0 %}
+        <p class="text-sm text-orange-500 font-medium">🔥 {{ item.streak }} day streak</p>
+        {% endif %}
+    </div>
+    {% if item.completed %}
+    <form hx-post="{% url 'routines:uncomplete' item.routine.pk %}" hx-target="#routine-{{ item.routine.pk }}" hx-swap="outerHTML">
+        {% csrf_token %}
+        <button class="w-10 h-10 rounded-full bg-green-500 text-white text-lg">✓</button>
+    </form>
+    {% else %}
+    <form hx-post="{% url 'routines:complete' item.routine.pk %}" hx-target="#routine-{{ item.routine.pk }}" hx-swap="outerHTML">
+        {% csrf_token %}
+        <button class="w-10 h-10 rounded-full border-2 border-gray-300 hover:border-green-500 hover:bg-green-50 transition"></button>
+    </form>
+    {% endif %}
+</div>
+{% if new_badges %}
+<script>
+    {% for badge in new_badges %}
+    setTimeout(() => alert('🏆 Badge earned: {{ badge.name }}!'), 100);
+    {% endfor %}
+</script>
+{% endif %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Profile — Life Tracker{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <h1 class="text-2xl font-bold mb-2">Profile Settings</h1>
+    <p class="text-gray-500 dark:text-gray-400 mb-8">Customize your avatar and preferences.</p>
+
+    <div class="card">
+        <!-- Current avatar preview -->
+        <div class="flex items-center gap-5 mb-8 pb-8 border-b border-gray-100 dark:border-gray-700">
+            <div id="avatar-preview" class="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shadow-lg"
+                 style="background: {{ user.profile.avatar_color }}">
+                {{ user.profile.display_avatar }}
+            </div>
+            <div>
+                <p class="font-bold text-xl">{{ user.username }}</p>
+                <p class="text-gray-500 text-sm">{{ user.email }}</p>
+            </div>
+        </div>
+
+        <form method="post" class="space-y-8">
+            {% csrf_token %}
+
+            <!-- Avatar picker -->
+            <div>
+                <label class="block text-sm font-semibold mb-3">Choose your avatar</label>
+                <div id="avatar-picker" class="avatar-picker">
+                    {% for emoji, label in form.avatar.field.choices %}
+                    <label class="avatar-option {% if form.avatar.value == emoji %}selected{% endif %}" data-avatar="{{ emoji }}" title="{{ label }}">
+                        <input type="radio" name="avatar" value="{{ emoji }}" class="hidden"
+                               {% if form.avatar.value == emoji %}checked{% endif %}>
+                        {{ emoji }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Color picker -->
+            <div>
+                <label class="block text-sm font-semibold mb-3">Avatar background color</label>
+                {{ form.avatar_color }}
+                <div class="color-swatches mt-2">
+                    <button type="button" class="color-swatch {% if user.profile.avatar_color == '#6366f1' %}selected{% endif %}" data-color="#6366f1" style="background:#6366f1"></button>
+                    <button type="button" class="color-swatch {% if user.profile.avatar_color == '#8b5cf6' %}selected{% endif %}" data-color="#8b5cf6" style="background:#8b5cf6"></button>
+                    <button type="button" class="color-swatch {% if user.profile.avatar_color == '#ec4899' %}selected{% endif %}" data-color="#ec4899" style="background:#ec4899"></button>
+                    <button type="button" class="color-swatch {% if user.profile.avatar_color == '#ef4444' %}selected{% endif %}" data-color="#ef4444" style="background:#ef4444"></button>
+                    <button type="button" class="color-swatch {% if user.profile.avatar_color == '#f59e0b' %}selected{% endif %}" data-color="#f59e0b" style="background:#f59e0b"></button>
+                    <button type="button" class="color-swatch {% if user.profile.avatar_color == '#10b981' %}selected{% endif %}" data-color="#10b981" style="background:#10b981"></button>
+                    <button type="button" class="color-swatch {% if user.profile.avatar_color == '#06b6d4' %}selected{% endif %}" data-color="#06b6d4" style="background:#06b6d4"></button>
+                    <button type="button" class="color-swatch {% if user.profile.avatar_color == '#84cc16' %}selected{% endif %}" data-color="#84cc16" style="background:#84cc16"></button>
+                </div>
+            </div>
+
+            <!-- Other settings -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Timezone</label>
+                    {{ form.timezone }}
+                    {% if form.timezone.errors %}<p class="text-red-500 text-sm mt-1">{{ form.timezone.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Currency</label>
+                    {{ form.currency }}
+                    {% if form.currency.errors %}<p class="text-red-500 text-sm mt-1">{{ form.currency.errors.0 }}</p>{% endif %}
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary w-full sm:w-auto">Save changes</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Life Tracker">
+    <link rel="manifest" href="/static/manifest.webmanifest">
+    <link rel="icon" href="/static/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+    <title>{% block title %}Life Tracker{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <link rel="stylesheet" href="/static/css/app.css">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="h-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
+
+    {% if user.is_authenticated %}
+  <!-- Top navbar -->
+    <header class="app-nav">
+        <div class="max-w-7xl mx-auto px-4 h-full flex items-center justify-between gap-4">
+            <!-- Brand -->
+            <a href="{% url 'dashboard' %}" class="nav-brand flex items-center gap-2 shrink-0">
+                <span class="text-xl">🌟</span>
+                <span class="hidden sm:inline">Life Tracker</span>
+            </a>
+
+            <!-- Desktop nav -->
+            <nav class="desktop-nav hidden md:flex items-center gap-1">
+                <a href="{% url 'dashboard' %}" class="nav-item internal-nav {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <span class="nav-icon">🏠</span><span>Home</span>
+                </a>
+                <a href="{% url 'routines:list' %}" class="nav-item internal-nav {% if 'routines' in request.path %}active{% endif %}">
+                    <span class="nav-icon">✅</span><span>Routines</span>
+                </a>
+                <a href="{% url 'expenses:list' %}" class="nav-item internal-nav {% if 'expenses' in request.path %}active{% endif %}">
+                    <span class="nav-icon">💰</span><span>Expenses</span>
+                </a>
+                <a href="{% url 'planner:list' %}" class="nav-item internal-nav {% if 'planner' in request.path %}active{% endif %}">
+                    <span class="nav-icon">📅</span><span>Planner</span>
+                </a>
+                <a href="{% url 'rewards:list' %}" class="nav-item internal-nav {% if 'rewards' in request.path %}active{% endif %}">
+                    <span class="nav-icon">🏆</span><span>Rewards</span>
+                </a>
+            </nav>
+
+            <!-- Right side: theme + user -->
+            <div class="flex items-center gap-2 shrink-0">
+                <button id="theme-toggle" class="theme-toggle-btn" title="Toggle theme" type="button" aria-label="Toggle dark mode">
+                    <span class="theme-icon-light">🌙</span>
+                    <span class="theme-icon-dark hidden">☀️</span>
+                </button>
+
+                <div class="relative">
+                    <button id="user-menu-btn" class="user-menu-btn" aria-expanded="false" aria-haspopup="true" type="button">
+                        <div class="user-avatar" style="background: {{ user_profile.avatar_color }}">
+                            {{ user_profile.display_avatar }}
+                        </div>
+                        <span class="hidden sm:block text-sm font-medium text-gray-700 dark:text-gray-200 max-w-[6rem] truncate">{{ user.username }}</span>
+                        <svg class="w-4 h-4 text-gray-400 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div id="user-dropdown" class="user-dropdown">
+                        <div class="px-3 py-2 border-b border-gray-100 dark:border-gray-700 mb-1">
+                            <p class="font-semibold text-sm">{{ user.username }}</p>
+                            <p class="text-xs text-gray-400 truncate">{{ user.email }}</p>
+                        </div>
+                        <a href="{% url 'accounts:profile' %}" class="dropdown-item internal-nav">
+                            <span>⚙️</span> Profile Settings
+                        </a>
+                        <button type="button" id="theme-toggle-mobile" class="dropdown-item md:hidden w-full">
+                            <span id="theme-dropdown-icon">🌙</span> <span id="theme-dropdown-label">Dark Mode</span>
+                        </button>
+                        <a href="{% url 'install-guide' %}" class="dropdown-item internal-nav">
+                            <span>📲</span> Install on Phone
+                        </a>
+                        <a href="{% url 'accounts:logout' %}" class="dropdown-item danger">
+                            <span>🚪</span> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile bottom nav -->
+    <nav class="mobile-nav">
+        <a href="{% url 'dashboard' %}" class="mobile-nav-item internal-nav {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+            <span class="nav-icon">🏠</span><span>Home</span>
+        </a>
+        <a href="{% url 'routines:list' %}" class="mobile-nav-item internal-nav {% if 'routines' in request.path %}active{% endif %}">
+            <span class="nav-icon">✅</span><span>Routines</span>
+        </a>
+        <a href="{% url 'expenses:list' %}" class="mobile-nav-item internal-nav {% if 'expenses' in request.path %}active{% endif %}">
+            <span class="nav-icon">💰</span><span>Expenses</span>
+        </a>
+        <a href="{% url 'planner:list' %}" class="mobile-nav-item internal-nav {% if 'planner' in request.path %}active{% endif %}">
+            <span class="nav-icon">📅</span><span>Plan</span>
+        </a>
+        <a href="{% url 'rewards:list' %}" class="mobile-nav-item internal-nav {% if 'rewards' in request.path %}active{% endif %}">
+            <span class="nav-icon">🏆</span><span>Rewards</span>
+        </a>
+    </nav>
+    {% endif %}
+
+    <!-- Install app banner (mobile, not already installed) -->
+    <div id="install-banner" class="install-banner hidden">
+        <div class="install-banner-inner">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+                <img src="/static/icons/icon-192.png" alt="" class="w-10 h-10 rounded-xl shrink-0">
+                <div class="min-w-0">
+                    <p class="font-semibold text-sm truncate">Install Life Tracker</p>
+                    <p class="text-xs text-gray-500 truncate">Add to home screen — open like an app</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <a href="{% url 'install-guide' %}" class="text-xs text-indigo-600 font-medium px-2">How?</a>
+                <button id="install-btn" type="button" class="btn-primary text-xs py-1.5 px-3">Install</button>
+                <button id="install-dismiss" type="button" class="text-gray-400 text-lg leading-none px-1" aria-label="Dismiss">×</button>
+            </div>
+        </div>
+    </div>
+
+    <main id="page-content" class="max-w-7xl mx-auto px-4 py-8 page-enter">
+        {% if messages %}
+        <div class="mb-6 space-y-2">
+            {% for message in messages %}
+            <div class="msg-toast p-4 rounded-xl text-sm font-medium
+                {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200 dark:bg-green-900/30 dark:text-green-200 dark:border-green-800
+                {% elif message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200
+                {% else %}bg-indigo-50 text-indigo-800 border border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-200{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/drafts.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

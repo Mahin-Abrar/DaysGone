@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — Life Tracker{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto page-hero">
+    <h1 class="text-2xl font-bold mb-6">{{ title }}</h1>
+    <div class="card">
+        <form method="post" class="space-y-5" id="routine-form">
+            {% csrf_token %}
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Title</label>
+                {{ form.title }}
+                {% if form.title.errors %}<p class="text-red-500 text-sm">{{ form.title.errors.0 }}</p>{% endif %}
+            </div>
+
+            <!-- Icon picker -->
+            <div>
+                <label class="block text-sm font-medium mb-2">Icon</label>
+                {{ form.icon }}
+                <button type="button" id="icon-picker-btn" class="icon-picker-trigger">
+                    <span id="icon-preview" class="text-3xl">{{ form.icon.value|default:"✅" }}</span>
+                    <span class="text-sm text-gray-500">Tap to choose</span>
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div id="icon-picker-dropdown" class="icon-picker-dropdown hidden">
+                    <div class="icon-picker-grid">
+                        {% for emoji in routine_icons %}
+                        <button type="button" class="icon-picker-option {% if form.icon.value == emoji %}selected{% endif %}" data-icon="{{ emoji }}">{{ emoji }}</button>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% if form.icon.errors %}<p class="text-red-500 text-sm">{{ form.icon.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Color</label>
+                {{ form.color }}
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Schedule</label>
+                {{ form.schedule }}
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Custom days</label>
+                {{ form.custom_days }}
+                <p class="text-xs text-gray-400 mt-1">0=Mon, 1=Tue … 6=Sun (comma-separated)</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Target time</label>
+                {{ form.target_time }}
+            </div>
+
+            <label class="flex items-center gap-2 cursor-pointer">
+                {{ form.is_active }}
+                <span class="text-sm font-medium">Active</span>
+            </label>
+
+            <div class="flex gap-3 pt-2">
+                <button type="submit" class="btn-primary">Save</button>
+                <a href="{% url 'routines:list' %}" class="btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('icon-picker-btn');
+    const dropdown = document.getElementById('icon-picker-dropdown');
+    const preview = document.getElementById('icon-preview');
+    const hidden = document.querySelector('input[name="icon"]');
+    if (!btn || !dropdown) return;
+
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('hidden');
+        dropdown.classList.toggle('open');
+    });
+    document.addEventListener('click', () => {
+        dropdown.classList.add('hidden');
+        dropdown.classList.remove('open');
+    });
+    dropdown.addEventListener('click', (e) => e.stopPropagation());
+
+    dropdown.querySelectorAll('.icon-picker-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            dropdown.querySelectorAll('.icon-picker-option').forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
+            const icon = opt.dataset.icon;
+            if (hidden) hidden.value = icon;
+            if (preview) preview.textContent = icon;
+            dropdown.classList.add('hidden');
+            dropdown.classList.remove('open');
+        });
+    });
+});
+</script>
+{% endblock %}

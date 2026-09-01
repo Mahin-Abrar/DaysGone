@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Rewards — Life Tracker{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">🏆 Rewards & Streaks</h1>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="card">
+        <h2 class="text-lg font-bold mb-4">🔥 Current Streaks</h2>
+        {% if streaks %}
+        <div class="space-y-3">
+            {% for s in streaks %}
+            <div class="flex items-center justify-between p-3 rounded-xl" style="background: {{ s.routine.color }}15">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">{{ s.routine.icon }}</span>
+                    <div>
+                        <p class="font-bold">{{ s.routine.title }}</p>
+                        <p class="text-xs text-gray-500">Best: {{ s.longest_streak }} days</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-2xl font-bold text-orange-500">{{ s.current_streak }}</p>
+                    <p class="text-xs text-gray-400">days</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500">No active streaks yet. Complete routines daily!</p>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h2 class="text-lg font-bold mb-4">🎖️ Badge Collection</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {% for badge in badges %}
+            <div class="text-center p-4 rounded-xl transition
+                {% if badge.id in earned_ids %}bg-yellow-50 dark:bg-yellow-900/30 ring-2 ring-yellow-400
+                {% else %}bg-gray-100 dark:bg-gray-700/50 opacity-50 grayscale{% endif %}">
+                <div class="text-4xl mb-2">{{ badge.icon }}</div>
+                <p class="font-bold text-sm">{{ badge.name }}</p>
+                <p class="text-xs text-gray-500">{{ badge.milestone_days }} days</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% if earned %}
+<div class="card">
+    <h2 class="text-lg font-bold mb-4">Recently Earned</h2>
+    <div class="flex flex-wrap gap-4">
+        {% for ub in earned %}
+        <div class="text-center p-3 rounded-xl bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20">
+            <div class="text-3xl">{{ ub.badge.icon }}</div>
+            <p class="font-medium text-sm">{{ ub.badge.name }}</p>
+            {% if ub.routine %}<p class="text-xs text-gray-400">{{ ub.routine.title }}</p>{% endif %}
+            <p class="text-xs text-gray-400">{{ ub.earned_at|date:"M j, Y" }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

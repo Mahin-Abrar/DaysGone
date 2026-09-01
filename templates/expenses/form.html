@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Add Expense — Life Tracker{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <h1 class="text-2xl font-bold mb-6">Add Expense</h1>
+    {% if draft %}
+    <div class="mb-4 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm">
+        📝 Draft restored from your last session.
+    </div>
+    {% endif %}
+    <div class="card">
+        <form method="post" id="expense-form" class="space-y-4 draft-form" data-form-type="expense">
+            {% csrf_token %}
+            {% for field in form %}
+            <div>
+                <label class="block text-sm font-medium mb-1">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<p class="text-red-500 text-sm">{{ field.errors.0 }}</p>{% endif %}
+            </div>
+            {% endfor %}
+            <p class="text-xs text-gray-400 draft-status"></p>
+            <button type="submit" class="btn-primary w-full">Save Expense</button>
+        </form>
+    </div>
+</div>
+<style>
+    form input, form select, form textarea { @apply w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 outline-none; }
+</style>
+{% endblock %}

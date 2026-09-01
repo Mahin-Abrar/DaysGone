@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Life Tracker{% endblock %}
+{% block content %}
+
+<!-- Hero greeting -->
+<div class="mb-10 flex items-start justify-between gap-4 page-hero">
+    <div>
+        <p class="text-sm font-medium text-indigo-600 dark:text-indigo-400 mb-1">{{ today|date:"l, F j, Y" }}</p>
+        <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">
+            Good day, {{ user.username }} {{ user_profile.display_avatar }}
+        </h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-2">Here's your daily overview at a glance.</p>
+    </div>
+</div>
+
+<!-- Section: Today's Progress -->
+<section class="dashboard-section animate-item" style="--delay: 0.05s">
+    <div class="section-header">
+        <div class="section-icon bg-indigo-100 dark:bg-indigo-900/40">✅</div>
+        <h2>Today's Progress</h2>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="stat-card animate-item" style="--delay: 0.1s">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Routines Completed</span>
+                <a href="{% url 'routines:list' %}" class="text-xs text-indigo-600 hover:underline font-medium internal-nav">View all →</a>
+            </div>
+            <div class="flex items-center gap-8 flex-1">
+                <div class="relative w-28 h-28 shrink-0">
+                    <svg class="w-28 h-28 transform -rotate-90 progress-ring" viewBox="0 0 36 36">
+                        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e5e7eb" stroke-width="3" class="dark:stroke-gray-600"/>
+                        <circle id="progress-circle" cx="18" cy="18" r="15.9" fill="none" stroke="#6366f1" stroke-width="3"
+                                stroke-linecap="round" stroke-dasharray="0, 100"
+                                data-target="{{ progress_pct }}"/>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span class="text-2xl font-bold" id="progress-label">0%</span>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-4xl font-bold"><span id="count-animated">{{ completed_today }}</span><span class="text-lg text-gray-400 font-normal"> / {{ total_due }}</span></p>
+                    <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">routines done today</p>
+                    <a href="{% url 'routines:list' %}" class="btn-primary mt-4 text-sm internal-nav">Complete routines</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card animate-item" style="--delay: 0.15s">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Active Streaks</span>
+                <a href="{% url 'rewards:list' %}" class="text-xs text-indigo-600 hover:underline font-medium internal-nav">All rewards →</a>
+            </div>
+            {% if top_streaks %}
+            <ul class="space-y-3 flex-1">
+                {% for s in top_streaks %}
+                <li class="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 animate-item" style="--delay: {{ forloop.counter }}00ms">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">{{ s.routine.icon }}</span>
+                        <span class="font-medium text-sm">{{ s.routine.title }}</span>
+                    </div>
+                    <span class="font-bold text-orange-500 text-sm">🔥 {{ s.current_streak }}d</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="flex-1 flex items-center justify-center text-gray-400 text-sm py-8">
+                Complete routines daily to build streaks
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Section: Finances -->
+<section class="dashboard-section animate-item" style="--delay: 0.2s">
+    <div class="section-header">
+        <div class="section-icon bg-emerald-100 dark:bg-emerald-900/40">💰</div>
+        <h2>Finances</h2>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="stat-card lg:col-span-1 animate-item" style="--delay: 0.25s">
+            <span class="stat-card-title">This Month's Spending</span>
+            <p class="text-4xl font-bold text-indigo-600 dark:text-indigo-400 mt-3 mb-1">
+                {% if currency == 'BDT' %}৳{% elif currency == 'USD' %}${% elif currency == 'EUR' %}€{% elif currency == 'GBP' %}£{% endif %}{{ month_total }}
+            </p>
+            <a href="{% url 'expenses:create' %}" class="btn-primary mt-4 text-sm w-full internal-nav">+ Add expense</a>
+        </div>
+        <div class="stat-card lg:col-span-2 animate-item" style="--delay: 0.3s">
+            <span class="stat-card-title">Top Categories</span>
+            {% if by_category %}
+            <div class="mt-4 space-y-3">
+                {% for cat in by_category %}
+                <div class="flex items-center gap-3 animate-item" style="--delay: {{ forloop.counter|add:3 }}00ms">
+                    <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:{{ cat.category__color }}"></span>
+                    <span class="flex-1 text-sm font-medium">{{ cat.category__name }}</span>
+                    <div class="w-32 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                        {% if month_total %}<div class="h-full rounded-full bar-grow" data-width="{% widthratio cat.total month_total 100 %}%" style="width:0; background:{{ cat.category__color }}"></div>{% endif %}
+                    </div>
+                    <span class="text-sm font-semibold w-16 text-right">{{ cat.total }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-gray-400 text-sm mt-4">No expenses logged this month yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Section: Planning & Rewards -->
+<section class="dashboard-section animate-item" style="--delay: 0.35s">
+    <div class="section-header">
+        <div class="section-icon bg-violet-100 dark:bg-violet-900/40">📋</div>
+        <h2>Planning & Rewards</h2>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="stat-card animate-item" style="--delay: 0.4s">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Tomorrow's Plan</span>
+                <a href="{% url 'planner:list' %}" class="text-xs text-indigo-600 hover:underline font-medium internal-nav">Open planner →</a>
+            </div>
+            {% if tomorrow_items %}
+            <ul class="space-y-2">
+                {% for item in tomorrow_items %}
+                <li class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/40 animate-item" style="--delay: {{ forloop.counter|add:4 }}00ms">
+                    <span class="text-xs px-2.5 py-1 rounded-full font-medium
+                        {% if item.priority == 'high' %}bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300
+                        {% elif item.priority == 'medium' %}bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300
+                        {% else %}bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300{% endif %}">
+                        {{ item.get_priority_display }}
+                    </span>
+                    <span class="text-sm font-medium flex-1">{{ item.title }}</span>
+                    <span class="text-xs text-gray-400">{{ item.get_time_block_display }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-gray-400 text-sm py-6 text-center">Nothing planned for tomorrow yet.</p>
+            <a href="{% url 'planner:create' %}" class="btn-secondary text-sm w-full mt-auto internal-nav">Plan tomorrow</a>
+            {% endif %}
+        </div>
+
+        <div class="stat-card animate-item" style="--delay: 0.45s">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Recent Badges</span>
+                <a href="{% url 'rewards:list' %}" class="text-xs text-indigo-600 hover:underline font-medium internal-nav">View all →</a>
+            </div>
+            {% if recent_badges %}
+            <div class="grid grid-cols-3 gap-3">
+                {% for ub in recent_badges %}
+                <div class="text-center p-4 rounded-xl bg-gradient-to-b from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 border border-yellow-100 dark:border-yellow-800/30 animate-item badge-pop" style="--delay: {{ forloop.counter|add:5 }}00ms">
+                    <div class="text-3xl mb-1">{{ ub.badge.icon }}</div>
+                    <div class="text-xs font-semibold">{{ ub.badge.name }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-gray-400 text-sm py-6 text-center">Keep your streaks to earn badges!</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const circle = document.getElementById('progress-circle');
+    const label = document.getElementById('progress-label');
+    if (circle && label) {
+        const target = parseInt(circle.dataset.target, 10) || 0;
+        setTimeout(() => {
+            circle.style.strokeDasharray = target + ', 100';
+            let current = 0;
+            const step = () => {
+                if (current < target) {
+                    current = Math.min(current + 2, target);
+                    label.textContent = current + '%';
+                    requestAnimationFrame(step);
+                }
+            };
+            step();
+        }, 400);
+    }
+    document.querySelectorAll('.bar-grow').forEach((bar, i) => {
+        setTimeout(() => { bar.style.width = bar.dataset.width; }, 600 + i * 100);
+    });
+});
+</script>
+{% endblock %}

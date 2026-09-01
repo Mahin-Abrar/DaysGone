@@ -1,0 +1,28 @@
+<div id="planner-item-{{ item.pk }}" class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50
+    {% if item.is_done %}opacity-60{% endif %}">
+    <form hx-post="{% url 'planner:toggle' item.pk %}" hx-target="#planner-item-{{ item.pk }}" hx-swap="outerHTML">
+        {% csrf_token %}
+        <button class="w-6 h-6 rounded border-2 flex items-center justify-center text-xs
+            {% if item.is_done %}bg-green-500 border-green-500 text-white{% else %}border-gray-300{% endif %}">
+            {% if item.is_done %}✓{% endif %}
+        </button>
+    </form>
+    <div class="flex-1">
+        <p class="font-medium {% if item.is_done %}line-through{% endif %}">{{ item.title }}</p>
+        <span class="text-xs px-2 py-0.5 rounded-full
+            {% if item.priority == 'high' %}bg-red-100 text-red-700
+            {% elif item.priority == 'medium' %}bg-yellow-100 text-yellow-700
+            {% else %}bg-green-100 text-green-700{% endif %}">
+            {{ item.get_priority_display }}
+        </span>
+    </div>
+    <div class="flex gap-1">
+        <a href="{% url 'planner:move' item.pk 'up' %}" class="text-gray-400 hover:text-gray-600 text-xs">▲</a>
+        <a href="{% url 'planner:move' item.pk 'down' %}" class="text-gray-400 hover:text-gray-600 text-xs">▼</a>
+        <form hx-post="{% url 'planner:delete' item.pk %}" hx-target="#planner-item-{{ item.pk }}" hx-swap="outerHTML"
+              hx-confirm="Delete this item?">
+            {% csrf_token %}
+            <button class="text-red-400 hover:text-red-600 text-xs">✕</button>
+        </form>
+    </div>
+</div>

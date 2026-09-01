@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Planner — Life Tracker{% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <div>
+        <h1 class="text-2xl font-bold">📅 Planner</h1>
+        <p class="text-gray-500">{{ target_date|date:"l, F j, Y" }}</p>
+    </div>
+    <div class="flex gap-2">
+        <a href="{% url 'planner:create' %}" class="btn-primary">+ Add Item</a>
+        <form method="post" action="{% url 'planner:carryover' %}">
+            {% csrf_token %}
+            <button class="btn-secondary">Carry Over Today →</button>
+        </form>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="card">
+        <h2 class="text-lg font-bold mb-4">🌅 Morning</h2>
+        <div class="space-y-2">
+            {% for item in blocks.morning %}
+            {% include "planner/partials/item.html" %}
+            {% empty %}<p class="text-gray-400 text-sm">No items</p>{% endfor %}
+        </div>
+    </div>
+    <div class="card">
+        <h2 class="text-lg font-bold mb-4">☀️ Afternoon</h2>
+        <div class="space-y-2">
+            {% for item in blocks.afternoon %}
+            {% include "planner/partials/item.html" %}
+            {% empty %}<p class="text-gray-400 text-sm">No items</p>{% endfor %}
+        </div>
+    </div>
+    <div class="card">
+        <h2 class="text-lg font-bold mb-4">🌙 Evening</h2>
+        <div class="space-y-2">
+            {% for item in blocks.evening %}
+            {% include "planner/partials/item.html" %}
+            {% empty %}<p class="text-gray-400 text-sm">No items</p>{% endfor %}
+        </div>
+    </div>
+    <div class="card">
+        <h2 class="text-lg font-bold mb-4">📌 Anytime</h2>
+        <div class="space-y-2">
+            {% for item in blocks.anytime %}
+            {% include "planner/partials/item.html" %}
+            {% empty %}<p class="text-gray-400 text-sm">No items</p>{% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
