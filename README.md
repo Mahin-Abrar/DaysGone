@@ -1,76 +1,160 @@
-# Life Tracker
+# 🌟 Life Tracker
 
-A multi-user daily routine, expense tracker, and next-day planner — built with Django, Redis, HTMX, and Chart.js.
+<div align="center">
 
-## Features
+![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Django](https://img.shields.io/badge/Django-6.x-092E20?style=for-the-badge&logo=django&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-Cache-DC382D?style=for-the-badge&logo=redis&logoColor=white)
+![HTMX](https://img.shields.io/badge/HTMX-Interactive-3366CC?style=for-the-badge)
+![PWA](https://img.shields.io/badge/PWA-Installable-5A0FC8?style=for-the-badge)
 
-- **Daily Routines** — checklist with HTMX one-tap complete, weekly heatmap
+**Routines · Expenses · Planner · Streaks — one dashboard on your home WiFi**
+
+[Features](#-features) • [Screenshots](#-screenshots) • [Quick Start](#-quick-start) • [Phone Install](#-use-on-your-phone-like-an-app) • [Tech Stack](#-tech-stack)
+
+</div>
+
+---
+
+## ✨ What is it?
+
+Life Tracker is a **multi-user personal dashboard** you run on your PC and open from any phone or tablet on the same WiFi — like your own private app.
+
+| | |
+|---|---|
+| ✅ **Routines** | Daily habits with one-tap complete & streak flames |
+| 💰 **Expenses** | Colorful charts by category & month |
+| 📅 **Planner** | Plan tomorrow in morning / afternoon / evening blocks |
+| 🏆 **Rewards** | Badges at 7, 14, 30, 60, 100-day streaks |
+| 📲 **PWA** | Add to home screen — no IP typing after setup |
+
+---
+
+## 📸 Screenshots
+
+> **To show images on GitHub:** save your screenshots in [`docs/screenshots/`](docs/screenshots/) and commit them to the repo. GitHub cannot display images that only exist on your PC.
+
+| Dashboard | Profile Settings |
+|:---:|:---:|
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Profile Settings](docs/screenshots/profile-settings.png) |
+| Home overview — routines, streaks, expenses, planner | Avatar picker, theme color, currency & timezone |
+
+<details>
+<summary>📁 How to add your screenshots</summary>
+
+1. Save your two images into this folder:
+   ```
+   docs/screenshots/dashboard.png
+   docs/screenshots/profile-settings.png
+   ```
+2. Commit and push to GitHub:
+   ```bash
+   git add docs/screenshots/
+   git commit -m "Add app screenshots"
+   git push
+   ```
+3. Refresh the repo page — images appear in this README automatically.
+
+**Optional:** For animated demos, record a short screen capture, save as `docs/screenshots/demo.gif`, and add it below the table.
+
+</details>
+
+---
+
+## 🚀 Features
+
+- **Daily Routines** — HTMX one-tap complete, weekly liquid progress bars
 - **Streak System** — flame counters, badges at 7/14/30/60/100 days
-- **Expense Tracker** — colorful Chart.js doughnut, bar, and comparison charts
-- **Next-Day Planner** — morning/afternoon/evening blocks, carry-over
+- **Expense Tracker** — Chart.js doughnut, bar & month comparison charts
+- **Next-Day Planner** — time blocks, priority colors, carry-over unfinished tasks
 - **Draft Autosave** — Redis-backed form drafts (7-day TTL)
-- **Multi-User** — separate accounts, isolated data
-- **LAN Access** — use from phone/tablet on same WiFi
+- **Multi-User** — separate accounts, isolated data per person
+- **Dark Mode** — desktop & mobile, remembered in browser
+- **LAN Access** — `http://<your-pc-ip>:8000` from any device on WiFi
 
-## Quick Start
+---
+
+## ⚡ Quick Start
 
 ### 1. Install Redis (Windows)
 
-Choose one:
-
-- **[Memurai](https://www.memurai.com/)** — Redis-compatible, runs as a Windows service
-- **WSL2** — `sudo apt install redis-server && sudo service redis-server start`
+| Option | Link |
+|---|---|
+| **Memurai** (recommended) | [memurai.com](https://www.memurai.com/) |
+| **WSL2** | `sudo apt install redis-server && sudo service redis-server start` |
 
 ### 2. Setup
 
 ```bash
-cd "F:\code hok\django projects"
+git clone https://github.com/Mahin-Abrar/DaysGone.git
+cd DaysGone
 python -m venv venv
-.\venv\Scripts\activate
+.\venv\Scripts\activate          # Windows
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py seed_data
 python manage.py createsuperuser
 ```
 
-### 3. Run (LAN access)
+### 3. Run
 
 ```bash
 python manage.py runserver 0.0.0.0:8000
+# Or double-click: run.bat
 ```
 
-Find your PC's IP: `ipconfig` → look for IPv4 Address (e.g. `192.168.0.105`).
+Find your PC IP: `ipconfig` → **IPv4 Address** (e.g. `192.168.0.102`)
 
-Open on any device on the same WiFi: **http://192.168.0.105:8000**
+Open locally: **http://localhost:8000**  
+Open from phone: **http://192.168.0.102:8000**
 
-> Allow Windows Firewall access when prompted (Private networks only).
+> Allow Windows Firewall on **Private networks** when prompted.
 
-## Use on your phone (like an app)
+---
 
-You only need to type the IP **once**. After that, open it from your home screen.
+## 📱 Use on your phone (like an app)
 
-### Option 1: Add to Home Screen (recommended)
+You only type the IP **once**. Then open from your home screen like a native app.
 
-1. On your phone, open `http://192.168.0.102:8000` in the browser (use your PC's IP).
-2. **iPhone (Safari):** Share button → **Add to Home Screen** → name it **Life Tracker**
-3. **Android (Chrome):** Menu ⋮ → **Add to Home screen** (or tap the **Install** banner)
+### Option 1 — Add to Home Screen (recommended)
 
-It will appear as an app icon on your home screen — no address bar, feels like a native app.
+| Platform | Steps |
+|---|---|
+| **iPhone** | Safari → Share → **Add to Home Screen** → name it *Life Tracker* |
+| **Android** | Chrome → ⋮ → **Add to Home screen** (or tap Install banner) |
 
-Full guide: **http://192.168.0.102:8000/install/** (also in user menu → Install on Phone)
+### Option 2 — Friendly URL
 
-### Option 2: Use a name instead of IP
+1. Windows **Settings → System → About → Rename PC** → `lifetracker`
+2. On phone try: `http://lifetracker.local:8000`
 
-1. On Windows: **Settings → System → About → Rename this PC** → set to `lifetracker`
-2. Restart if prompted
-3. On your phone try: **http://lifetracker.local:8000**
+### Option 3 — Bookmark
 
-Works on many Android phones. iPhone support for `.local` names varies by network.
+Save `http://<your-ip>:8000` as a bookmark.
 
-### Option 3: Bookmark
+Full guide when server is running: **http://localhost:8000/install/**
 
-Save the IP URL as a browser bookmark named **Life Tracker**.
+---
 
+## 🛠 Tech Stack
+
+```
+Django 6  ·  SQLite  ·  Redis  ·  HTMX  ·  Tailwind CDN  ·  Chart.js  ·  PWA
+```
+
+| Layer | Choice |
+|---|---|
+| Backend | Django 6 + django-htmx |
+| Database | SQLite (swap to PostgreSQL later if needed) |
+| Cache / Sessions / Drafts | Redis via django-redis |
+| UI | Server-rendered templates — no npm build step |
+| Deploy | Local WiFi only (`runserver 0.0.0.0:8000`) |
+
+---
+
+## 🔐 Environment Variables
+
+Create a `.env` file in the project root:
 
 | Variable | Default | Description |
 |---|---|---|
@@ -79,9 +163,34 @@ Save the IP URL as a browser bookmark named **Life Tracker**.
 | `ALLOWED_HOSTS` | `localhost,127.0.0.1,*` | Hosts for LAN |
 | `REDIS_URL` | `redis://127.0.0.1:6379/1` | Redis connection |
 
-## Tech Stack
+---
 
-- Django 6 + django-htmx + django-redis
-- SQLite (local) / Redis (sessions, cache, drafts)
-- Tailwind CSS + Chart.js (CDN)
-- HTMX for interactive UI without a SPA build step
+## 📂 Project structure
+
+```
+├── accounts/      Auth, profile, avatars
+├── routines/      Daily habits + weekly heatmap
+├── expenses/      Spending + Chart.js
+├── planner/       Next-day planner
+├── rewards/       Streaks + badges
+├── drafts/        Redis autosave API
+├── templates/     HTML templates
+├── static/        CSS, JS, PWA manifest
+└── AGENTS.md      Guide for AI agents
+```
+
+---
+
+## 🤖 For developers & AI agents
+
+See **[AGENTS.md](AGENTS.md)** for full architecture, URL map, models, data flows, and conventions.
+
+---
+
+<div align="center">
+
+**Made for daily life on your home network**
+
+⭐ Star this repo if you find it useful
+
+</div>
