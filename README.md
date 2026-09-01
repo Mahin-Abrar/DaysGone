@@ -39,25 +39,6 @@ Life Tracker is a **multi-user personal dashboard** you run on your PC and open 
 | ![Dashboard](docs/screenshots/dashboard.png) | ![Profile Settings](docs/screenshots/profile-settings.png) |
 | Home overview — routines, streaks, expenses, planner | Avatar picker, theme color, currency & timezone |
 
-<details>
-<summary>📁 How to add your screenshots</summary>
-
-1. Save your two images into this folder:
-   ```
-   docs/screenshots/dashboard.png
-   docs/screenshots/profile-settings.png
-   ```
-2. Commit and push to GitHub:
-   ```bash
-   git add docs/screenshots/
-   git commit -m "Add app screenshots"
-   git push
-   ```
-3. Refresh the repo page — images appear in this README automatically.
-
-**Optional:** For animated demos, record a short screen capture, save as `docs/screenshots/demo.gif`, and add it below the table.
-
-</details>
 
 ---
 
